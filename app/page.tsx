@@ -76,7 +76,7 @@ export default function Home() {
     }
 
   }
-  
+
 
   function copyWords() {
     let str = "";
@@ -84,15 +84,15 @@ export default function Home() {
       const w = words[i];
       str = str + build(w) + '\n';
     }
-    
+
     navigator.clipboard.writeText(str);
   }
   function build(word: string) {
     let s = "";
     for (let i = 0; i < word.length; i++) {
-      if (word[i] != challenge?.end[i]){
+      if (word[i] != challenge?.end[i]) {
         s = s + "⬛"
-      }else{
+      } else {
         s = s + '🟩';
       }
     }
@@ -140,7 +140,12 @@ export default function Home() {
 
         {
           !win &&
-          <InputOTP maxLength={5} pattern={REGEXP_ONLY_CHARS} onChange={(v) => setGuess(v)} value={guess}>
+          <InputOTP
+            maxLength={5}
+            inputMode="text"
+            pattern={REGEXP_ONLY_CHARS}
+            onChange={(v) => setGuess(v)}
+            value={guess}>
             <InputOTPGroup className='gap-5'>
               {
                 verdict?.result == true || words.length < 1 ?
