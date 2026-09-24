@@ -1,6 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getWords, checkStep } from '@/lib/soup'
 import { useEffect, useState } from 'react';
 import {
@@ -19,6 +19,16 @@ export default function HelpPage() {
                 <CardHeader>
                     <CardTitle>How do i play?</CardTitle>
                 </CardHeader>
+                <CardContent>
+                    <ul className='flex flex-col gap-3'>
+                        <li>The main challenge is to go from the start word (the one on top) to the end/goal word (the word on the bottom)</li>
+                        <li>You can change exactly one letter at a time from the word before to slowly transform your word to the goal word</li>
+                        <li>Each one of these new words that you write, need to be real valid words.</li>
+                        <li>It is possible to repeat a word as long as you do not do it immediately afterwords</li>
+                    </ul>
+                    <p className='font-bold'>Words change everyday automatically according to IST, Bon apetite :)</p>
+                </CardContent>
+
                 <CardDescription className='px-5'>
                     <a href='/'>Go back</a>
                 </CardDescription>
