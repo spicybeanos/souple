@@ -68,6 +68,20 @@ export async function checkStep(prevWord: string, nextWord: string): Promise<{ r
     return { result: true, reason: 'Valid step.' };
 }
 
+export async function checkGame(words: string[]) {
+    let game = await getWords();
+    let twords = [game.start, ...words];
+    if (twords[twords.length - 1] != game.end) {
+        return false;
+    }
+    for (let i = 0; i < twords.length - 1; i++) {
+        if (!await checkStep(twords[i], twords[i + 1])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 function canTransform(start: string, end: string): boolean {
     if (!wordSet.has(start) || !wordSet.has(end)) return false;
     if (start === end) return true;
