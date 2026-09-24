@@ -81,7 +81,6 @@ export async function checkGame(words: string[]) {
     }
     return true;
 }
-
 function canTransform(start: string, end: string): boolean {
     if (!wordSet.has(start) || !wordSet.has(end)) return false;
     if (start === end) return true;
@@ -89,6 +88,7 @@ function canTransform(start: string, end: string): boolean {
     const alphabet = "abcdefghijklmnopqrstuvwxyz";
     const queue: string[] = [start];
     const visited = new Set<string>([start]);
+    const parent = new Map<string, string>(); // child -> parent word
 
     while (queue.length > 0) {
         const current = queue.shift()!;
@@ -97,14 +97,28 @@ function canTransform(start: string, end: string): boolean {
             for (const c of alphabet) {
                 if (c === current[i]) continue;
 
-                const candidate = current.slice(0, i) + c + current.slice(i + 1);
+                const newWord = current.slice(0, i) + c + current.slice(i + 1);
 
-                if (candidate === end) return true;
+                if (visited.has(newWord)) continue;
+                if (!wordSet.has(newWord) && newWord !== end) continue;
 
-                if (wordSet.has(candidate) && !visited.has(candidate)) {
-                    visited.add(candidate);
-                    queue.push(candidate);
+                visited.add(newWord);
+                parent.set(newWord, current);
+
+                if (newWord === end) {
+                    // Reconstruct path by walking parents back to start
+                    const path: string[] = [end];
+                    let node = end;
+                    while (node !== start) {
+                        node = parent.get(node)!;
+                        path.push(node);
+                    }
+                    path.reverse();
+                    console.log("found solution: "+ `[${path.length}]` + path.join(" -> "));
+                    return true;
                 }
+
+                queue.push(newWord);
             }
         }
     }
