@@ -38,19 +38,34 @@ export async function getWords() {
     return { start: words.start, end: words.end };
 }
 
-export async function checkStep(prevWord: string, nextWord: string): Promise<boolean> {
-    if (prevWord.length != 5) return false;
-    if (nextWord.length != 5) return false;
+export async function checkStep(prevWord: string, nextWord: string): Promise<{ result: boolean, reason: string }> {
+    const normalizedPrev = prevWord.toLowerCase();
+    const normalizedNext = nextWord.toLowerCase();
+
+    if (normalizedPrev.length !== 5 || normalizedNext.length !== 5) {
+        return { result: false, reason: 'Words must be 5 letters long.' };
+    }
 
     let dif = 0;
     for (let i = 0; i < 5; i++) {
-        if (prevWord[i] != nextWord[i]) { dif++; }
-    }
-    if (dif != 1) return false;
-    if (!wordSet.has(prevWord)) return false;
-    if (!wordSet.has(nextWord)) return false;
+        if (!/^[a-z]$/.test(normalizedPrev[i]) || !/^[a-z]$/.test(normalizedNext[i])) {
+            return { result: false, reason: 'Words must contain only letters.' };
+        }
 
-    return true;
+        if (normalizedPrev[i] !== normalizedNext[i]) dif++;
+    }
+
+    if (dif !== 1) {
+        return { result: false, reason: 'Only one letter can change at a time.' };
+    }
+    if (!wordSet.has(normalizedPrev)) {
+        return { result: false, reason: 'Starting word is not in the dictionary.' };
+    }
+    if (!wordSet.has(normalizedNext)) {
+        return { result: false, reason: 'Next word is not in the dictionary.' };
+    }
+
+    return { result: true, reason: 'Valid step.' };
 }
 
 function canTransform(start: string, end: string): boolean {
