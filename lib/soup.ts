@@ -1,8 +1,10 @@
 'use server';
 import { createHash } from 'crypto';
 import { fiveLetterWords } from '@/lib/words';
-
+import { WildcardCounts } from './WordCounts';
+const wildcardCounts: Record<string, number> = WildcardCounts;
 const wordSet = new Set(fiveLetterWords);
+
 
 function sha1(input: string): string {
     return createHash('sha1').update(input).digest('hex');
@@ -13,6 +15,19 @@ function sha256(input: string): string {
 function sha1ToSafeNumber(sha1Hex: string): number {
     const substring = sha1Hex.substring(0, 13);
     return parseInt(substring, 16);
+}
+
+
+function NextWordTransformPaths(input:string):boolean{
+    let cnt=0;
+    const arr= input.split("");
+    for (let i = 0; i < 5; i++) {
+        arr[i] = "*";       
+        const res = arr.join("");
+        cnt += wildcardCounts[res] ?? 0;
+    }
+    //  define a minimum range to signify the next transformation states, low is hard, high means easy
+    return cnt>=10;
 }
 
 export async function getWords() {
@@ -28,14 +43,21 @@ export async function getWords() {
 
     let words = createWordPair(secret + "", date);
     let ctr = 1;
-    let possible = canTransform(words.start, words.end);
-    while (!possible) {
-        words = createWordPair(secret + "-" + ctr, date);
-        possible = canTransform(words.start, words.end);
-        ctr++;
-    }
+    // If start word allows atleast some threshold of transformations and is reachable, do it other reiterate.
+    while (true) {
+        if (NextWordTransformPaths(words.start)) {
+            if (canTransform(words.start, words.end)) {
+                return {
+                    start: words.start,
+                    end: words.end,
+                };
+            }
+        }
 
-    return { start: words.start, end: words.end };
+        words = createWordPair(`${secret}-${ctr}`, date);
+        ctr++;
+
+    }
 }
 
 export async function checkStep(prevWord: string, nextWord: string): Promise<{ result: boolean, reason: string }> {
